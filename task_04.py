@@ -12,12 +12,6 @@ class Node:
         self.color = color
         self.id = str(uuid.uuid4())
 
-    def __lt__(self, other):
-        return self.val < other.val
-
-    def __eq__(self, other):
-        return self.val == other.val
-
 
 def add_edges(graph, node, pos, x=0, y=0, layer=1):
     if node is not None:
@@ -42,7 +36,6 @@ def draw_tree(tree_root):
     tree = add_edges(tree, tree_root, pos)
 
     colors = [node[1]["color"] for node in tree.nodes(data=True)]
-    # Use node value for labels
     labels = {node[0]: node[1]["label"] for node in tree.nodes(data=True)}
 
     plt.figure(figsize=(8, 5))
@@ -52,19 +45,18 @@ def draw_tree(tree_root):
     plt.show()
 
 
-def heap_to_tree(heap):
-    heap_nodes = [Node(num) for num in heap]
-    heapq.heapify(heap_nodes)
-
-    while len(heap_nodes) > 1:
-        node1 = heapq.heappop(heap_nodes)
-        node2 = heapq.heappop(heap_nodes)
-        merged_node = Node(node1.val + node2.val)
-        merged_node.left = node1
-        merged_node.right = node2
-        heapq.heappush(heap_nodes, merged_node)
-
-    return heap_nodes[0]
+def heap_to_tree(heap, index=0):
+    if index < len(heap):
+        node = Node(heap[index])
+        left_index = 2 * index + 1
+        right_index = 2 * index + 2
+        if left_index < len(heap):
+            node.left = heap_to_tree(heap, left_index)
+        if right_index < len(heap):
+            node.right = heap_to_tree(heap, right_index)
+        return node
+    else:
+        return None
 
 
 nums = [5, 10, 14, 7, 3]
